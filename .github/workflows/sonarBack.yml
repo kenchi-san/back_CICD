@@ -15,6 +15,9 @@ jobs:
   backend-tests:
     name: Backend - Tests & Coverage
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -38,6 +41,9 @@ jobs:
     name: Backend - SonarCloud Analysis
     needs: backend-tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -58,15 +64,9 @@ jobs:
         uses: sonarsource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACK }}
+        # Pas besoin de passer args, il utilisera sonar-project.properties
         with:
-          args: >
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY_BACK }}
-            -Dsonar.organization=${{ secrets.SONAR_ORG }}
-            -Dsonar.sources=src/main/java
-            -Dsonar.tests=src/test/java
-            -Dsonar.java.binaries=target/classes
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-            ${{ github.event_name == 'pull_request' && format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base={2}', github.event.pull_request.number, github.head_ref, github.base_ref) || '' }}
+          projectBaseDir: .
 
   quality-gate:
     name: Backend - Wait for Quality Gate
@@ -76,5 +76,5 @@ jobs:
       - name: Wait for SonarCloud Quality Gate
         uses: SonarSource/sonarcloud-quality-gate-action@master
         with:
-          projectKey: ${{ secrets.SONAR_PROJECT_KEY_BACK }}
+          projectKey: kenchi-san_backend
           sonarToken: ${{ secrets.SONAR_TOKEN_BACK }}
