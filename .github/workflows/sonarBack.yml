@@ -67,6 +67,14 @@ jobs:
         # Pas besoin de passer args, il utilisera sonar-project.properties
         with:
           projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY_BACK }}
+            -Dsonar.organization=${{ secrets.SONAR_ORG }}
+            -Dsonar.sources=src/main/java
+            -Dsonar.tests=src/test/java
+            -Dsonar.java.binaries=target/classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+            ${{ github.event_name == 'pull_request' && format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base={2}', github.event.pull_request.number, github.head_ref, github.base_ref) || '' }}
 
   quality-gate:
     name: Backend - Wait for Quality Gate
@@ -76,5 +84,5 @@ jobs:
       - name: Wait for SonarCloud Quality Gate
         uses: SonarSource/sonarcloud-quality-gate-action@master
         with:
-          projectKey: kenchi-san_backend
+          projectKey: ${{ secrets.SONAR_PROJECT_KEY_BACK }}
           sonarToken: ${{ secrets.SONAR_TOKEN_BACK }}
