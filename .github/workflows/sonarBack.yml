@@ -60,20 +60,17 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco
 
-      - name: SonarCloud analysis
-        uses: sonarsource/sonarcloud-github-action@v2
+      - name: Run SonarCloud analysis with Maven
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACK }}
-        # Pas besoin de passer args, il utilisera sonar-project.properties
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY_BACK }}
-            -Dsonar.organization=${{ secrets.SONAR_ORG }}
-            -Dsonar.sources=src/main/java
-            -Dsonar.tests=src/test/java
-            -Dsonar.java.binaries=target/classes
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY_BACK }} \
+            -Dsonar.organization=${{ secrets.SONAR_ORG }} \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN_BACK }} \
+            -Dsonar.java.binaries=target/classes \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
             ${{ github.event_name == 'pull_request' && format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base={2}', github.event.pull_request.number, github.head_ref, github.base_ref) || '' }}
 
   quality-gate:
