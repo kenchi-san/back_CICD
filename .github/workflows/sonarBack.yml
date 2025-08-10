@@ -35,7 +35,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: back/target/site/jacoco/jacoco.xml
+          path: target/site/jacoco/jacoco.xml  # chemin relatif à `back`
 
   sonar-analysis:
     name: Backend - SonarCloud Analysis
@@ -58,14 +58,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: jacoco-report
-          path: back/target/site/jacoco
+          path: target/site/jacoco  # chemin relatif à `back`
 
       - name: SonarCloud analysis
         uses: sonarsource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACK }}
         with:
-          projectBaseDir: .
+          projectBaseDir: back  # ✅ analyse bien dans le dossier back
           args: >
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY_BACK }}
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
