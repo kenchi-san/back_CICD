@@ -15,9 +15,6 @@ jobs:
   backend-tests:
     name: Backend - Tests & Coverage
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: back
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -35,15 +32,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: target/site/jacoco/jacoco.xml  # chemin relatif à `back`
+          path: target/site/jacoco/jacoco.xml
 
   sonar-analysis:
     name: Backend - SonarCloud Analysis
     needs: backend-tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: back
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -58,14 +52,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: jacoco-report
-          path: target/site/jacoco  # chemin relatif à `back`
+          path: target/site/jacoco
 
       - name: SonarCloud analysis
         uses: sonarsource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACK }}
         with:
-          projectBaseDir: back  # ✅ analyse bien dans le dossier back
           args: >
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY_BACK }}
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
